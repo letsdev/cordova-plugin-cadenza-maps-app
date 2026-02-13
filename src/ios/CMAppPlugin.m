@@ -97,4 +97,38 @@
     return locationManager;
 }
 
+- (void)convertFileToBase64:(CDVInvokedUrlCommand*)command {
+    NSString *callbackId = command.callbackId;
+    self.callbackID = callbackId;
+
+    NSString *path = [command.arguments firstObject];
+    if (path == nil || [path length] == 0) {
+        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@""];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
+        return;
+    }
+
+    if ([path hasPrefix:@"file://"]) {
+        path = [path stringByReplacingOccurrencesOfString:@"file://" withString:@""];
+    } else if ([path hasPrefix:@"http://localhost/_app_file_"]) {
+        path = [path stringByReplacingOccurrencesOfString:@"http://localhost/_app_file_" withString:@""];
+    }
+
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        NSError *error = nil;
+        NSData *data = [NSData dataWithContentsOfFile:path options:0 error:&error];
+
+        if (data == nil || error) {
+            CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@""];
+            [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
+            return;
+        }
+
+        NSString *base64String = [data base64EncodedStringWithOptions:NSDataBase64Encoding76CharacterLineLength];
+        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:base64String];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:callbackId];
+    });
+}
+
+
 @end

@@ -17,5 +17,6 @@
 -(void)getCloudDirectory:(NSMutableArray*)arguments withDict:(NSMutableDictionary*)options;
 -(void)startLocationManager:(NSMutableArray*)arguments withDict:(NSMutableDictionary*)options;
 -(void)stopLocationManager:(NSMutableArray*)arguments withDict:(NSMutableDictionary*)options;
+-(void)convertFileToBase64:(CDVInvokedUrlCommand*)command;
 
 @end
